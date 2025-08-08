@@ -277,14 +277,15 @@ async function saveStickerPack(packId, stickers) {
 
 
 const STICKERS = [
-  "https://store.line.me/emojishop/product/67c9092bcd372c3107c54c32/en",
-  "https://store.line.me/emojishop/product/63ca068085d52f7ff12596d5/en",
-  "https://store.line.me/emojishop/product/64e80b97092abe5833a87320/en",
-  "https://store.line.me/emojishop/product/65e1933065bd7b66653c90f9/en",
-  "https://store.line.me/emojishop/product/6808583169d7650139d3175a/en",
-  "https://store.line.me/emojishop/product/667b809422d33233cb380c63/en",
+  // "https://store.line.me/emojishop/product/67c9092bcd372c3107c54c32/en",
+  // "https://store.line.me/emojishop/product/63ca068085d52f7ff12596d5/en",
+  // "https://store.line.me/emojishop/product/64e80b97092abe5833a87320/en",
+  // "https://store.line.me/emojishop/product/65e1933065bd7b66653c90f9/en",
+  // "https://store.line.me/emojishop/product/6808583169d7650139d3175a/en",
+  // "https://store.line.me/emojishop/product/667b809422d33233cb380c63/en",
+  "https://store.line.me/emojishop/product/66d164f4ef749a3b57850c5c/en",
   //
-  "https://store.line.me/stickershop/product/27319218/en" 
+  // "https://store.line.me/stickershop/product/27319218/en" 
 ]
 
 
