@@ -2,6 +2,8 @@
 import * as cheerio from 'cheerio';
 import path from 'path';
 import { promises as fs } from 'node:fs';
+import { buildSpriteForPackV2 } from './apng2frame.v2.js';
+import { BASE_PUBLIC_URL, downloadTo, urlParts } from './helpers.js';
 
 /**
  * Clean a LINE store URL:
@@ -60,7 +62,13 @@ function toStickerInfo(preview) {
   const url = hasAnim ? preview.animationUrl : preview.staticUrl || preview.url;
   const type = hasAnim ? 'ANIMATED' : 'STATIC';
   if (!id || !url) return null;
-  return { id, url, type };
+  return { 
+    id, 
+    url, 
+    type, 
+    staticUrl: preview.staticUrl || null,
+    fallbackStaticUrl: preview.fallbackStaticUrl || null, 
+  };
 }
 
 /**
@@ -102,6 +110,7 @@ function fromImg($img) {
   // 1) Primary path: elements with data-preview (most reliable)
   $('[data-preview]').each((_, el) => {
     const preview = parsePreviewAttr($(el).attr('data-preview'));
+
     const info = preview && toStickerInfo(preview);
     if (info) results.push(info);
   });
@@ -137,7 +146,7 @@ function fromImg($img) {
     headers: {
       'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome Safari',
     },
-    cache: 'no-store',
+    // cache: 'no-store',
   });
   if (!res.ok) throw new Error(`Fetch failed: ${res.status}`);
   return res.arrayBuffer();
@@ -188,7 +197,7 @@ async function downloadOne(sticker, destDir) {
 }
 
 /**
- * Save stickers to /public/line-packs/<packId>/<stickerId>/<filename>
+ * Save stickers to /public/line-packs-v2/<packId>/<stickerId>/<filename>
  * Returns a summary of saved paths.
  *
  * NOTE: On Vercel/serverless the filesystem is ephemeral. For durable storage,
@@ -198,7 +207,7 @@ async function downloadOne(sticker, destDir) {
 //   packId,
 //   stickers
 // ) {
-//   const baseDir = path.join(process.cwd(), 'line-packs', sanitize(packId));
+//   const baseDir = path.join(process.cwd(), 'line-packs-v2', sanitize(packId));
 //   await ensureDir(baseDir);
 
 //   const results= [];
@@ -228,77 +237,92 @@ async function downloadOne(sticker, destDir) {
 //   return { baseDir, saved: results, failed: errors };
 // }
 
+// --- FIXED: saveStickerPack (V2 structure, tải đủ animation/static/fallback) ---
+// --- saveStickerPack V2: tải đủ animation/static/fallback ---
 async function saveStickerPack(packId, stickers) {
-  const baseDir = path.join(process.cwd(), 'line-packs', sanitize(packId));
-  await ensureDir(baseDir);
+  const relPackDir = path.join('line-packs-v2', sanitize(packId));
+  const absPackDir = path.join(process.cwd(), relPackDir);
+  await fs.mkdir(absPackDir, { recursive: true });
 
   const results = [];
   const errors = [];
 
-  const concurrency = 6;
-  let i = 0;
+  // chạy tuần tự cho dễ debug; muốn nhanh thì đổi sang worker/concurrency như cũ
+  for (const s of stickers) {
+    try {
+      const urls = [
+        s.animationUrl,
+        s.url,               // url chính (đã ưu tiên animation trong toStickerInfo)
+        s.staticUrl,
+        s.fallbackStaticUrl,
+      ]
+        .filter(Boolean)
+        .filter((v, i, arr) => arr.indexOf(v) === i); // uniq
 
-  async function worker() {
-    while (i < stickers.length) {
-      const idx = i++;
-      const s = stickers[idx];
-      try {
-        // Always save as <stickerId>.png (keep extension from original if not png)
-        const ext = path.extname(new URL(s.url).pathname) || '.png';
-        const fileName = `${sanitize(s.id)}${ext}`;
-        const filePath = path.join(baseDir, fileName);
+      for (const oneUrl of urls) {
+        const { baseNoExt, filename } = urlParts(oneUrl);
 
-        const res = await fetch(s.url, {
-          headers: { 'user-agent': UA },
-          cache: 'no-store',
-        });
-        if (!res.ok) throw new Error(`Fetch failed ${s.id}: ${res.status}`);
-        const ab = await res.arrayBuffer();
-        await fs.writeFile(filePath, Buffer.from(ab));
+        // line-packs-v2/<packId>/<stickerId>/<filename-no-ext>/
+        const relDir = path.join(relPackDir, sanitize(s.id), sanitize(baseNoExt));
+        const absDir = path.join(process.cwd(), relDir);
+
+        await downloadTo(oneUrl, absDir);
 
         results.push({
           id: s.id,
-          path: path.join('line-packs', sanitize(packId), fileName),
+          variantUrl: oneUrl,
+          dir: relDir.replaceAll('\\', '/'),
+          file: path.join(relDir, filename).replaceAll('\\', '/'),
         });
-      } catch (e) {
-        errors.push({ id: s.id, error: e?.message || String(e) });
       }
+    } catch (e) {
+      errors.push({ id: s.id, error: e?.message || String(e) });
+      console.error('saveStickerPack error:', s?.id, e);
     }
   }
 
-  await Promise.all(Array.from({ length: concurrency }, worker));
-
-  return {
-    baseDir: path.join('line-packs', sanitize(packId)),
-    saved: results,
-    failed: errors,
-  };
+  return { baseDir: relPackDir.replaceAll('\\', '/'), saved: results, failed: errors };
 }
 
-
 const STICKERS = [
-  // "https://store.line.me/emojishop/product/67c9092bcd372c3107c54c32/en",
-  // "https://store.line.me/emojishop/product/63ca068085d52f7ff12596d5/en",
-  // "https://store.line.me/emojishop/product/64e80b97092abe5833a87320/en",
-  // "https://store.line.me/emojishop/product/65e1933065bd7b66653c90f9/en",
-  // "https://store.line.me/emojishop/product/6808583169d7650139d3175a/en",
-  // "https://store.line.me/emojishop/product/667b809422d33233cb380c63/en",
+  "https://store.line.me/emojishop/product/67c9092bcd372c3107c54c32/en",
+  "https://store.line.me/emojishop/product/63ca068085d52f7ff12596d5/en",
+  "https://store.line.me/emojishop/product/64e80b97092abe5833a87320/en",
+  "https://store.line.me/emojishop/product/65e1933065bd7b66653c90f9/en",
+  "https://store.line.me/emojishop/product/6808583169d7650139d3175a/en",
+  "https://store.line.me/emojishop/product/667b809422d33233cb380c63/en",
   "https://store.line.me/emojishop/product/66d164f4ef749a3b57850c5c/en",
-  //
-  // "https://store.line.me/stickershop/product/27319218/en" 
+  
+  "https://store.line.me/stickershop/product/27319218/en" 
 ]
+
 
 
 STICKERS.forEach( async url => {
   const stickers = await getStickerInfo(url);
 
-    const packId = stickers[0].id; 
-    // Filter actual frames (skip the main.png entry if you want)
-    const frames = stickers.filter(s => /^\d+$/.test(s.id));
+  const packId = stickers[0].id; 
+  // Filter actual frames (skip the main.png entry if you want)
+  const frames = stickers.filter(s => /^\d+$/.test(s.id));
 
-    const res = await saveStickerPack(packId, frames);
+  const res = await saveStickerPack(packId, frames);
 
-    console.log(res);
+  // Tạo sprite + json ngay trong cùng thư mục pack
+  await buildSpriteForPackV2({
+    packId,
+    frames,
+    basePublicDir: process.cwd(),   // repo root
+    basePublicUrl: BASE_PUBLIC_URL, // ✅ build absolute URL cho JSON
+    spriteName: 'spritesheet.png',
+    jsonName: 'sticker.json',
+    cols: 8,
+    padding: 0,
+    label: 'Betakuma clapping',
+    packName: "Betakkuma's Sports Frenzy",
+  });
 
 })
+
+
+
 

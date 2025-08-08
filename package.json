@@ -10,7 +10,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "cheerio": "1.1.2"
+    "cheerio": "1.1.2",
+    "upng-js": "2.1.0"
   },
   "type": "module"
 }

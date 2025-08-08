@@ -1,0 +1,18 @@
+{
+  "frame_count": 15,
+  "frame_rate": 133,
+  "frames_per_column": 8,
+  "frames_per_row": 2,
+  "label": "Betakuma clapping",
+  "pack": {
+    "name": "Betakkuma's Sports Frenzy"
+  },
+  "sprite_image": {
+    "uri": "https://raw.githubusercontent.com/godchu/blog-assets/refs/heads/main/line-packs-v2/63ca068085d52f7ff12596d5/017/017_animation/spritesheet.png"
+  },
+  "image": {
+    "uri": "https://raw.githubusercontent.com/godchu/blog-assets/refs/heads/main/line-packs-v2/63ca068085d52f7ff12596d5/017/017/017.png",
+    "width": 180,
+    "height": 180
+  }
+}
