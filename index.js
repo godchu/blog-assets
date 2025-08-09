@@ -292,7 +292,6 @@ const STICKERS = [
   "https://store.line.me/emojishop/product/6808583169d7650139d3175a/en",
   "https://store.line.me/emojishop/product/667b809422d33233cb380c63/en",
   "https://store.line.me/emojishop/product/66d164f4ef749a3b57850c5c/en",
-  
   "https://store.line.me/stickershop/product/27319218/en" 
 ]
 
