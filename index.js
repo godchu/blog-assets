@@ -272,7 +272,7 @@ async function saveStickerPack(packId, stickers) {
         if (/animation\.png(?:$|\?)/i.test(oneUrl)) {
           const apngPath = path.join(absDir, fileNameFromUrl(oneUrl)); // downloaded APNG
           try {
-            await convertApngVariantToGif(apngPath);
+            await convertApngVariantToGif(apngPath,  { repeat: 0 });
           } catch (e) {
             console.warn('APNG→GIF failed for', apngPath, e?.message || e);
           }
