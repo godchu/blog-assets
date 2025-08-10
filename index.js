@@ -4,6 +4,7 @@ import path from 'path';
 import { promises as fs } from 'node:fs';
 import { buildSpriteForPackV2 } from './apng2frame.v2.js';
 import { BASE_PUBLIC_URL, downloadTo, urlParts } from './helpers.js';
+import { convertApngVariantToGif } from './apng2gif.js';
 
 /**
  * Clean a LINE store URL:
@@ -268,6 +269,15 @@ async function saveStickerPack(packId, stickers) {
 
         await downloadTo(oneUrl, absDir);
 
+        if (/animation\.png(?:$|\?)/i.test(oneUrl)) {
+          const apngPath = path.join(absDir, fileNameFromUrl(oneUrl)); // downloaded APNG
+          try {
+            await convertApngVariantToGif(apngPath);
+          } catch (e) {
+            console.warn('APNG→GIF failed for', apngPath, e?.message || e);
+          }
+        }
+
         results.push({
           id: s.id,
           variantUrl: oneUrl,
@@ -285,18 +295,72 @@ async function saveStickerPack(packId, stickers) {
 }
 
 const STICKERS = [
-  // "https://store.line.me/emojishop/product/67c9092bcd372c3107c54c32/en",
-  // "https://store.line.me/emojishop/product/63ca068085d52f7ff12596d5/en",
-  // "https://store.line.me/emojishop/product/64e80b97092abe5833a87320/en",
-  // "https://store.line.me/emojishop/product/65e1933065bd7b66653c90f9/en",
-  // "https://store.line.me/emojishop/product/6808583169d7650139d3175a/en",
-  // "https://store.line.me/emojishop/product/667b809422d33233cb380c63/en",
-  // "https://store.line.me/emojishop/product/66d164f4ef749a3b57850c5c/en",
-  // "https://store.line.me/stickershop/product/27319218/en" 
-
-  "https://store.line.me/emojishop/product/67623b3dfeefbb031e01547f/en"
+  "https://store.line.me/emojishop/product/648e6812b74fae74142e8af0/en",
+  "https://store.line.me/emojishop/product/67c9092bcd372c3107c54c32/en",
+  "https://store.line.me/emojishop/product/63ca068085d52f7ff12596d5/en",
+  "https://store.line.me/emojishop/product/64e80b97092abe5833a87320/en",
+  "https://store.line.me/emojishop/product/65e1933065bd7b66653c90f9/en",
+  "https://store.line.me/emojishop/product/6808583169d7650139d3175a/en",
+  "https://store.line.me/emojishop/product/667b809422d33233cb380c63/en",
+  "https://store.line.me/emojishop/product/66d164f4ef749a3b57850c5c/en",
+  "https://store.line.me/emojishop/product/67623b3dfeefbb031e01547f/en",
+  // 
+  "https://store.line.me/emojishop/product/653c693f3a007919c0167e64/en",
+  "https://store.line.me/emojishop/product/665e825e22d33233cb37cea0/en",
+  "https://store.line.me/emojishop/product/65781a7a896d8c165265f3ea/en",
+  "https://store.line.me/emojishop/product/686cb4907a295f1761c5ba83/en",
+  // "https://store.line.me/stickershop/product/27319218/en",
 ]
 
+
+export async function saveStickerPackSimple(packId, stickers) {
+  const relPackDir = path.join('line-packs-simple', sanitize(packId));
+  const absPackDir = path.join(process.cwd(), relPackDir);
+  await ensureDir(absPackDir);
+
+  const results = [];
+  const errors = [];
+
+  for (const s of stickers) {
+    try {
+      const bestUrl =
+        s.animationUrl ||
+        s.url ||
+        s.staticUrl ||
+        s.fallbackStaticUrl;
+
+      if (!bestUrl) throw new Error('No URL for sticker');
+
+      // Always save as <id>.png (APNG is still .png)
+      const destRel = path.join(relPackDir, `${sanitize(String(s.id))}.png`);
+      const destAbs = path.join(process.cwd(), destRel);
+
+      const res = await fetch(bestUrl, {
+        headers: { 'user-agent': UA },
+        cache: 'no-store',
+      });
+      if (!res.ok) throw new Error(`Fetch failed ${s.id}: ${res.status}`);
+
+      const ab = await res.arrayBuffer();
+      await fs.writeFile(destAbs, Buffer.from(ab));
+
+      results.push({
+        id: String(s.id),
+        url: bestUrl,
+        file: destRel.replaceAll('\\', '/'),
+      });
+    } catch (e) {
+      errors.push({ id: String(s?.id ?? ''), error: e?.message || String(e) });
+      // optional: console.error('saveStickerPackSimple error:', s?.id, e);
+    }
+  }
+
+  return {
+    baseDir: relPackDir.replaceAll('\\', '/'),
+    saved: results,
+    failed: errors,
+  };
+}
 
 
 STICKERS.forEach( async url => {
@@ -322,8 +386,13 @@ STICKERS.forEach( async url => {
     packName: "Betakkuma's Sports Frenzy",
   });
 
-})
 
+  // const stickers = await getStickerInfo(url);
+  // const packId = stickers[0].id;
+  // const frames = stickers.filter(s => /^\d+$/.test(s.id));
+  // await saveStickerPackSimple(packId, frames);
+
+})
 
 
 

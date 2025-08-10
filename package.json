@@ -10,7 +10,9 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "apng2gif": "^1.7.0",
     "cheerio": "1.1.2",
+    "gifwrap": "^0.10.1",
     "upng-js": "2.1.0"
   },
   "type": "module"

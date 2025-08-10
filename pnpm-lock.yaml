@@ -8,14 +8,29 @@ importers:
 
   .:
     dependencies:
+      apng2gif:
+        specifier: ^1.7.0
+        version: 1.7.0
       cheerio:
         specifier: 1.1.2
         version: 1.1.2
+      gifwrap:
+        specifier: ^0.10.1
+        version: 0.10.1
       upng-js:
         specifier: 2.1.0
         version: 2.1.0
 
 packages:
+
+  '@types/node@16.9.1':
+    resolution: {integrity: sha512-QpLcX9ZSsq3YYUUnD3nFDY8H7wctAhQj/TFKL8Ya8v5fMm3CFXxo8zStsLAl780ltoYoo1WvKUVGBQK+1ifr7g==}
+
+  apng2gif-bin@1.7.1:
+    resolution: {integrity: sha512-Zg+KnNIDoMepSJ07d5PDOhNfx+k85iv0hCD8PEvjIeoIzpemHl2JkvN/88YRrnFBJ6DyFLpRlv/+EjnmNKWnLg==}
+
+  apng2gif@1.7.0:
+    resolution: {integrity: sha512-trKFmDpI+ZdHUPhotrqsvWTd4MUlAoMBcGLm3xrUJKPeFGputSRkeG8Z1z4koQ56eqiugA22aKokgex606oPZg==}
 
   boolbase@1.0.0:
     resolution: {integrity: sha512-JZOSA7Mo9sNGB8+UjSgzdLtokWAky1zbztM3WRLCbZ70/3cTANmQmOdR7y2g+J0e2WXywy1yS468tY+IruqEww==}
@@ -58,6 +73,9 @@ packages:
     resolution: {integrity: sha512-aN97NXWF6AWBTahfVOIrB/NShkzi5H7F9r1s9mD3cDj4Ko5f2qhhVoYMibXF7GlLveb/D2ioWay8lxI97Ven3g==}
     engines: {node: '>=0.12'}
 
+  gifwrap@0.10.1:
+    resolution: {integrity: sha512-2760b1vpJHNmLzZ/ubTtNnEx5WApN/PYWJvXvgS+tL1egTTthayFYIQQNi136FLEDcN/IyEY2EcGpIITD6eYUw==}
+
   htmlparser2@10.0.0:
     resolution: {integrity: sha512-TwAZM+zE5Tq3lrEHvOlvwgj1XLWQCtaaibSN11Q+gGBAS7Y1uZSWwXXRe4iF6OXnaq1riyQAPFOBtYc77Mxq0g==}
 
@@ -65,8 +83,14 @@ packages:
     resolution: {integrity: sha512-4fCk79wshMdzMp2rH06qWrJE4iolqLhCUH+OiuIgU++RB0+94NlDL81atO7GX55uUKueo0txHNtvEyI6D7WdMw==}
     engines: {node: '>=0.10.0'}
 
+  image-q@4.0.0:
+    resolution: {integrity: sha512-PfJGVgIfKQJuq3s0tTDOKtztksibuUEbJQIYT3by6wctQo+Rdlh7ef4evJ5NCdxY4CfMbvFkocEwbl4BF8RlJw==}
+
   nth-check@2.1.1:
     resolution: {integrity: sha512-lqjrjmaOoAnWfMmBPL+XNnynZh2+swxiX3WUE0s4yEHI6m+AwrK2UZOimIRl3X/4QctVqS8AiZjFqyOGrMXb/w==}
+
+  omggif@1.0.10:
+    resolution: {integrity: sha512-LMJTtvgc/nugXj0Vcrrs68Mn2D1r0zf630VNtqtpI1FEO7e+O9FP4gqs9AcnBaSEeoHIPm28u6qgPR0oyEpGSw==}
 
   pako@1.0.11:
     resolution: {integrity: sha512-4hLB8Py4zZce5s4yd9XzopqwVv/yGNhV1Bl8NTmCq1763HeK2+EwVTv+leGeL13Dnh2wfbqowVPXCIO0z4taYw==}
@@ -99,6 +123,14 @@ packages:
     engines: {node: '>=18'}
 
 snapshots:
+
+  '@types/node@16.9.1': {}
+
+  apng2gif-bin@1.7.1: {}
+
+  apng2gif@1.7.0:
+    dependencies:
+      apng2gif-bin: 1.7.1
 
   boolbase@1.0.0: {}
 
@@ -162,6 +194,11 @@ snapshots:
 
   entities@6.0.1: {}
 
+  gifwrap@0.10.1:
+    dependencies:
+      image-q: 4.0.0
+      omggif: 1.0.10
+
   htmlparser2@10.0.0:
     dependencies:
       domelementtype: 2.3.0
@@ -173,9 +210,15 @@ snapshots:
     dependencies:
       safer-buffer: 2.1.2
 
+  image-q@4.0.0:
+    dependencies:
+      '@types/node': 16.9.1
+
   nth-check@2.1.1:
     dependencies:
       boolbase: 1.0.0
+
+  omggif@1.0.10: {}
 
   pako@1.0.11: {}
 
