@@ -9,7 +9,7 @@ importers:
   .:
     dependencies:
       apng2gif:
-        specifier: ^1.7.0
+        specifier: 1.7.0
         version: 1.7.0
       cheerio:
         specifier: 1.1.2

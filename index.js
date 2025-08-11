@@ -4,7 +4,7 @@ import path from 'path';
 import { promises as fs } from 'node:fs';
 import { buildSpriteForPackV2 } from './apng2frame.v2.js';
 import { BASE_PUBLIC_URL, downloadTo, urlParts } from './helpers.js';
-import { convertApngVariantToGif } from './apng2gif.js';
+import { apngToGifSibling } from './apng2gif.v2.js';
 
 /**
  * Clean a LINE store URL:
@@ -272,7 +272,7 @@ async function saveStickerPack(packId, stickers) {
         if (/animation\.png(?:$|\?)/i.test(oneUrl)) {
           const apngPath = path.join(absDir, fileNameFromUrl(oneUrl)); // downloaded APNG
           try {
-            await convertApngVariantToGif(apngPath, { repeat: 0, colorCount: 256, maxFrameDelayMs: 2000, onFrameError: 'skip' });
+            await apngToGifSibling(apngPath, { repeat: 0 });
           } catch (e) {
             console.warn('APNG→GIF failed for', apngPath, e?.message || e);
           }
@@ -296,19 +296,19 @@ async function saveStickerPack(packId, stickers) {
 
 const STICKERS = [
   "https://store.line.me/emojishop/product/648e6812b74fae74142e8af0/en",
-  // "https://store.line.me/emojishop/product/67c9092bcd372c3107c54c32/en",
-  // "https://store.line.me/emojishop/product/63ca068085d52f7ff12596d5/en",
-  // "https://store.line.me/emojishop/product/64e80b97092abe5833a87320/en",
-  // "https://store.line.me/emojishop/product/65e1933065bd7b66653c90f9/en",
-  // "https://store.line.me/emojishop/product/6808583169d7650139d3175a/en",
-  // "https://store.line.me/emojishop/product/667b809422d33233cb380c63/en",
-  // "https://store.line.me/emojishop/product/66d164f4ef749a3b57850c5c/en",
-  // "https://store.line.me/emojishop/product/67623b3dfeefbb031e01547f/en",
-  // // 
-  // "https://store.line.me/emojishop/product/653c693f3a007919c0167e64/en",
-  // "https://store.line.me/emojishop/product/665e825e22d33233cb37cea0/en",
-  // "https://store.line.me/emojishop/product/65781a7a896d8c165265f3ea/en",
-  // "https://store.line.me/emojishop/product/686cb4907a295f1761c5ba83/en",
+  "https://store.line.me/emojishop/product/67c9092bcd372c3107c54c32/en",
+  "https://store.line.me/emojishop/product/63ca068085d52f7ff12596d5/en",
+  "https://store.line.me/emojishop/product/64e80b97092abe5833a87320/en",
+  "https://store.line.me/emojishop/product/65e1933065bd7b66653c90f9/en",
+  "https://store.line.me/emojishop/product/6808583169d7650139d3175a/en",
+  "https://store.line.me/emojishop/product/667b809422d33233cb380c63/en",
+  "https://store.line.me/emojishop/product/66d164f4ef749a3b57850c5c/en",
+  "https://store.line.me/emojishop/product/67623b3dfeefbb031e01547f/en",
+  // 
+  "https://store.line.me/emojishop/product/653c693f3a007919c0167e64/en",
+  "https://store.line.me/emojishop/product/665e825e22d33233cb37cea0/en",
+  "https://store.line.me/emojishop/product/65781a7a896d8c165265f3ea/en",
+  "https://store.line.me/emojishop/product/686cb4907a295f1761c5ba83/en",
   // "https://store.line.me/stickershop/product/27319218/en",
 ]
 
@@ -393,6 +393,3 @@ STICKERS.forEach( async url => {
   // await saveStickerPackSimple(packId, frames);
 
 })
-
-
-
