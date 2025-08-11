@@ -99,10 +99,6 @@ export async function generateStickerFromAPNGUrlToFolder({
 
   await fs.writeFile(jsonPath, JSON.stringify(sticker, null, 2), 'utf-8');
 
-  // Helpful logs
-  console.log('✅ Wrote spritesheet:', spritePath);
-  console.log('✅ Wrote sticker.json:', jsonPath);
-
   return { sticker, spriteAbsUrl, thumbAbsUrl, spritePath, jsonPath };
 }
 
@@ -161,10 +157,6 @@ export async function buildSpriteForPackV2({
     // thumb: ưu tiên staticUrl, sau đó fallbackStaticUrl, cuối cùng đành dùng chính apng url
     const staticCandidate = apngFrame.staticUrl || apngFrame.fallbackStaticUrl || apngFrame.url;
     const thumbRelPath = localPathForUrl_V2(packId, stickerId, staticCandidate);
-
-    console.log('→ outDir:', outDir);
-    console.log('→ spriteRelPath:', spriteRelPath);
-    console.log('→ thumbRelPath:', thumbRelPath);
 
     const one = await generateStickerFromAPNGUrlToFolder({
       apngUrl: apngFrame.url,

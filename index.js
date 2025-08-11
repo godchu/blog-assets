@@ -272,7 +272,7 @@ async function saveStickerPack(packId, stickers) {
         if (/animation\.png(?:$|\?)/i.test(oneUrl)) {
           const apngPath = path.join(absDir, fileNameFromUrl(oneUrl)); // downloaded APNG
           try {
-            await apngToGifSibling(apngPath, { repeat: 0 });
+            await apngToGifSibling(apngPath);
           } catch (e) {
             console.warn('APNG→GIF failed for', apngPath, e?.message || e);
           }
@@ -295,6 +295,7 @@ async function saveStickerPack(packId, stickers) {
 }
 
 const STICKERS = [
+  "https://store.line.me/emojishop/product/67623b3dfeefbb031e01547f/en",
   "https://store.line.me/emojishop/product/648e6812b74fae74142e8af0/en",
   "https://store.line.me/emojishop/product/67c9092bcd372c3107c54c32/en",
   "https://store.line.me/emojishop/product/63ca068085d52f7ff12596d5/en",
@@ -303,8 +304,6 @@ const STICKERS = [
   "https://store.line.me/emojishop/product/6808583169d7650139d3175a/en",
   "https://store.line.me/emojishop/product/667b809422d33233cb380c63/en",
   "https://store.line.me/emojishop/product/66d164f4ef749a3b57850c5c/en",
-  "https://store.line.me/emojishop/product/67623b3dfeefbb031e01547f/en",
-  // 
   "https://store.line.me/emojishop/product/653c693f3a007919c0167e64/en",
   "https://store.line.me/emojishop/product/665e825e22d33233cb37cea0/en",
   "https://store.line.me/emojishop/product/65781a7a896d8c165265f3ea/en",
